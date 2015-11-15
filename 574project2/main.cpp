@@ -3,7 +3,7 @@
 //  574project2
 //
 //  Created by mdong3 on 11/13/15.
-//  Copyright (c) 2015 tianqing. All rights reserved.
+//  Copyright (c) 2015 mdong3. All rights reserved.
 //
 
 //#include <openssl/conf.h>
@@ -30,6 +30,7 @@ int main(int arc, char *argv[])
 //        cout << key[i] << endl;
 //    }
   ////////////////////////////////////////////////
+    
     FILE* sendFile;
     sendFile = fopen("sendFile.txt", "w+");
     ////////////////Generate 32 characters string as the session key/////////////////
@@ -56,6 +57,10 @@ int main(int arc, char *argv[])
             sessionPsw += c;
         }
     }
+    FILE *sessionFile;
+    sessionFile = fopen("sessionFile.txt", "w+");
+    fprintf(sessionFile, sessionPsw.c_str());
+    fclose(sessionFile);
 //    cout << sessionPsw << endl;
     /////////////////////////////////////////////////////////////
     ////////////////////input the message text///////////////////
@@ -75,6 +80,7 @@ int main(int arc, char *argv[])
     /////////////////////encrypt the message////////////////////
     string encryptShell = "./encryptMes.sh ";
     encryptShell += sessionPsw;
+    cout << encryptShell << endl;
     cout << "start to encrypt message!" << endl;
     system(encryptShell.c_str());
     cout << "done!" << endl;
