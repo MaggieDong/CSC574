@@ -30,7 +30,8 @@ int main(int arc, char *argv[])
 //        cout << key[i] << endl;
 //    }
   ////////////////////////////////////////////////
-    
+    FILE* sendFile;
+    sendFile = fopen("sendFile.txt", "w+");
     ////////////////Generate 32 characters string as the session key/////////////////
     int secIndx;
     string sessionPsw;
@@ -41,7 +42,7 @@ int main(int arc, char *argv[])
 
         /* generate secret number between 0 and 61: */
         secIndx = rand() % 62;
-        cout << i << ": " << secIndx << endl;
+//        cout << i << ": " << secIndx << endl;
         if (secIndx <= 9) {
             char c = '0' + secIndx;
             sessionPsw += c;
@@ -55,7 +56,7 @@ int main(int arc, char *argv[])
             sessionPsw += c;
         }
     }
-    cout << sessionPsw << endl;
+//    cout << sessionPsw << endl;
     /////////////////////////////////////////////////////////////
     ////////////////////input the message text///////////////////
     int messageC;
@@ -64,34 +65,21 @@ int main(int arc, char *argv[])
     puts ("Enter text. Include a star ('*') in a sentence to exit:");
     while(1) {
         messageC = getchar();
-        putchar (messageC);
+//        putchar (messageC);
         if (messageC == '*')
             break;
         fprintf(messageFile, "%c", messageC);
     }
     fclose(messageFile);
     ////////////////////////////////////////////////////////////
-    
+    /////////////////////encrypt the message////////////////////
+    string encryptShell = "./encryptMes.sh ";
+    encryptShell += sessionPsw;
+    cout << "start to encrypt message!" << endl;
+    system(encryptShell.c_str());
+    cout << "done!" << endl;
+    ////////////////////////////////////////////////////////////
+
+    fclose(sendFile);
     return 0;
 }
-//    /* Load the human readable error strings for libcrypto */
-//    ERR_load_crypto_strings();
-//
-//    /* Load all digest and cipher algorithms */
-//    OpenSSL_add_all_algorithms();
-//
-//    /* Load config file, and other important initialisation */
-//    OPENSSL_config(NULL);
-//
-//    /* ... Do some crypto stuff here ... */
-//
-//    /* Clean up */
-//
-//    /* Removes all digests and ciphers */
-//    EVP_cleanup();
-//
-//    /* if you omit the next, a small leak may be left when you make use of the BIO (low level API) for e.g. base64 transformations */
-//    CRYPTO_cleanup_all_ex_data();
-//
-//    /* Remove error strings */
-//    ERR_free_strings();
