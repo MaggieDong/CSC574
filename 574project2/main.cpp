@@ -2,7 +2,7 @@
 //  main.cpp
 //  574project2
 //
-//  Created by tianqing on 11/13/15.
+//  Created by mdong3 on 11/13/15.
 //  Copyright (c) 2015 tianqing. All rights reserved.
 //
 
@@ -30,7 +30,8 @@ int main(int arc, char *argv[])
 //        cout << key[i] << endl;
 //    }
   ////////////////////////////////////////////////
-//////////////////Generate 32
+    
+    ////////////////Generate 32 characters string as the session key/////////////////
     int secIndx;
     string sessionPsw;
 
@@ -55,6 +56,22 @@ int main(int arc, char *argv[])
         }
     }
     cout << sessionPsw << endl;
+    /////////////////////////////////////////////////////////////
+    ////////////////////input the message text///////////////////
+    int messageC;
+    FILE *messageFile;
+    messageFile = fopen ("message.txt","w+");
+    puts ("Enter text. Include a star ('*') in a sentence to exit:");
+    while(1) {
+        messageC = getchar();
+        putchar (messageC);
+        if (messageC == '*')
+            break;
+        fprintf(messageFile, "%c", messageC);
+    }
+    fclose(messageFile);
+    ////////////////////////////////////////////////////////////
+    
     return 0;
 }
 //    /* Load the human readable error strings for libcrypto */
