@@ -16,11 +16,11 @@ rm encryptedMsg.txt
 
 #signature of above content
 openssl dgst -sha1 -sign RSA.pem -out encryptedFile.txt.sha1 encryptedFile.txt
-echo "encryptedFile.txt.sha1" >> encryptedFile.txt 
 
 #Format and send
 echo "-----BEGIN CSC474 MESSAGE-----" >> sendFile.txt
 cat encryptedFile.txt >> sendFile.txt
+echo "encryptedFile.txt.sha1" >> sendFile.txt
 echo "-----END CSC474 MESSAGE-----" >> sendFile.txt
 
 

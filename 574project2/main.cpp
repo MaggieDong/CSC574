@@ -24,8 +24,8 @@ int main(int arc, char *argv[])
 {
     cout << "Hi, enter 0 to send a secure mail, or enter 1 to reveive a secure mail." << endl;
     int choice;
-    cin >> choice;
-//    choice = 1;
+//    cin >> choice;
+    choice = 1;
     switch (choice) {
         case 0:
             sendEmail();
@@ -101,7 +101,8 @@ void receiveEmail() {
     string emailName;
     FILE* receiveFile;
     cout << "please enter the email name you want to receive: ";
-    cin >> emailName;
+//    cin >> emailName;
+    emailName = "sendFile.txt";
     receiveFile = fopen(emailName.c_str(), "r");
     while (receiveFile == NULL) {
         cout << "Sorry, there is no email named " << emailName << endl;
@@ -114,13 +115,41 @@ void receiveEmail() {
     size_t len = 0;
     ssize_t read;
     int enterCount = 0;
+    string test = "\n";
+    cout << "size: " << sizeof(test) << endl;
+    bool errorDec = true;
     while ((read = getline(&line, &len, receiveFile)) != -1) {
-        printf("Retrieved line of length %zu :\n", read);
+//        printf("Retrieved line of length %zu :\n", read);
         printf("%s", line);
-        if (strncmp(line, " ", 1)) {
+        if (line[0] == '\n') {
             enterCount ++;
             cout << "enter number: " << enterCount << endl;
         }
+        if (enterCount == 2) {
+            errorDec = false;
+            read = getline(&line, &len, receiveFile);
+            string signedFN(line); //signed file name
+//            char* signedFNC = signedFN.c_str();
+            cout << "signed file name is: " << signedFN << endl;
+//            unsigned int size = (unsigned)strlen(signedFNC);
+            unsigned long nameLen = signedFN.length();
+            cout << "length is: " << nameLen << endl;
+            string unsignedFN = signedFN.substr(0, nameLen - 6);
+            cout << "unsigned file name: " << unsignedFN << endl;
+            string verifyShell = "./verifyScript.sh ";
+            verifyShell += unsignedFN;
+//            verifyShell += signedFN;
+//            cout << "mark! " << verifyShell << endl;
+////            verifyShell += " ";
+//            verifyShell += unsignedFN;
+//            cout << "mark! " << verifyShell << endl;
+            system(verifyShell.c_str());
+            break;
+        }
+    }
+    if (errorDec) {
+        cout << "the format of received file is wrong!" << endl;
+        return;
     }
     
     fclose(receiveFile);
