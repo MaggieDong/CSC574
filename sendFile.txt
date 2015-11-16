@@ -1,0 +1,9 @@
+-----BEGIN CSC474 MESSAGE-----
+U2FsdGVkX19shRiYxIf9WL5lVJ5otelL/2YR30u8/7DSwFLy77KwfZfqsI9WGnpZ
+GDKNkS+mzteui7vv6GznRg==
+
+U2FsdGVkX18r8TJ1GjlVX69Kp60p1oc7zsPLdNlJ+taYHhOX0R7eCwGWERB7MsFg
+6xsidzhsCHnfeUuB1jpAEzoMZRtgPH8NHGbVogFgjoc=
+
+encryptedFile.txt.sha1
+-----END CSC474 MESSAGE-----
