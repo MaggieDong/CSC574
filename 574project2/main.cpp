@@ -16,34 +16,45 @@
 #include <iostream>
 #include <string.h>
 using namespace std;
+
+void sendEmail();
+void receiveEmail();
+
 int main(int arc, char *argv[])
 {
-   ////////////////////////////////////////////////
-//    unsigned char key[16];//, iv[16];
-//    
-//    if (!RAND_bytes(key, sizeof key)) {
-//        /* OpenSSL reports a failure, act accordingly */
-//        cout << "fail" << endl;
-//    }
-//    cout << "code: " << endl;
-//    for (int i = 0; i < 16; i++) {
-//        cout << key[i] << endl;
-//    }
-  ////////////////////////////////////////////////
-    
+    cout << "Hi, enter 0 to send a secure mail, or enter 1 to reveive a secure mail." << endl;
+    int choice;
+    cin >> choice;
+//    choice = 1;
+    switch (choice) {
+        case 0:
+            sendEmail();
+            break;
+        case 1:
+            receiveEmail();
+        default:
+            break;
+    }
+    return 0;
+}
+
+void sendEmail(){
     FILE* sendFile;
-    sendFile = fopen("sendFile.txt", "w+");
+    cout << "please input the email name: ";
+    string emailName;
+    sendFile = fopen(emailName.c_str(), "w+");
+    
     ////////////////Generate 32 characters string as the session key/////////////////
     int secIndx;
     string sessionPsw;
-
+    
     /* initialize random seed: */
     srand( static_cast<unsigned int>(time(NULL)));
     for (int i = 0; i < 32; i ++) {
-
+        
         /* generate secret number between 0 and 61: */
         secIndx = rand() % 62;
-//        cout << i << ": " << secIndx << endl;
+        //        cout << i << ": " << secIndx << endl;
         if (secIndx <= 9) {
             char c = '0' + secIndx;
             sessionPsw += c;
@@ -61,8 +72,8 @@ int main(int arc, char *argv[])
     sessionFile = fopen("sessionFile.txt", "w+");
     fprintf(sessionFile, sessionPsw.c_str());
     fclose(sessionFile);
-//    cout << sessionPsw << endl;
     /////////////////////////////////////////////////////////////
+    
     ////////////////////input the message text///////////////////
     int messageC;
     FILE *messageFile;
@@ -70,7 +81,7 @@ int main(int arc, char *argv[])
     puts ("Enter text. Include a star ('*') in a sentence to exit:");
     while(1) {
         messageC = getchar();
-//        putchar (messageC);
+        //        putchar (messageC);
         if (messageC == '*')
             break;
         fprintf(messageFile, "%c", messageC);
@@ -80,12 +91,54 @@ int main(int arc, char *argv[])
     /////////////////////encrypt the message////////////////////
     string encryptShell = "./encryptMes.sh ";
     encryptShell += sessionPsw;
-    cout << encryptShell << endl;
-    cout << "start to encrypt message!" << endl;
+    cout << "start to encrypt message, please enter your private psw to sign the mail!" << endl;
     system(encryptShell.c_str());
     cout << "done!" << endl;
     ////////////////////////////////////////////////////////////
-
     fclose(sendFile);
-    return 0;
 }
+void receiveEmail() {
+    string emailName;
+    FILE* receiveFile;
+    cout << "please enter the email name you want to receive: ";
+    cin >> emailName;
+    receiveFile = fopen(emailName.c_str(), "r");
+    while (receiveFile == NULL) {
+        cout << "Sorry, there is no email named " << emailName << endl;
+        cout << "please enter the email name you want to receive: ";
+        cin >> emailName;
+        receiveFile = fopen(emailName.c_str(), "r");
+    }
+    //////Verify the signature on received message/////
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    int enterCount = 0;
+    while ((read = getline(&line, &len, receiveFile)) != -1) {
+        printf("Retrieved line of length %zu :\n", read);
+        printf("%s", line);
+        if (strncmp(line, " ", 1)) {
+            enterCount ++;
+            cout << "enter number: " << enterCount << endl;
+        }
+    }
+    
+    fclose(receiveFile);
+    if (line)
+        free(line);
+    exit(EXIT_SUCCESS);
+    ///////////////////////////////////////////////////
+}
+
+////////////////////////////////////////////////
+//    unsigned char key[16];//, iv[16];
+//
+//    if (!RAND_bytes(key, sizeof key)) {
+//        /* OpenSSL reports a failure, act accordingly */
+//        cout << "fail" << endl;
+//    }
+//    cout << "code: " << endl;
+//    for (int i = 0; i < 16; i++) {
+//        cout << key[i] << endl;
+//    }
+////////////////////////////////////////////////
