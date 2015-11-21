@@ -13,9 +13,9 @@ openssl enc -aes-256-cbc -base64 -in message.txt -out encryptedMsg.txt -pass pas
 cat encryptedMsg.txt >> encryptedFile.txt 
 echo >> encryptedFile.txt
 rm message.txt
-rm encryptedMsg.txt
+# rm encryptedMsg.txt
 
-# openssl enc -d -aes-256-cbc -base64 -in encryptedMsg.txt -out original.txt -pass pass:sessionPsw
+openssl enc -d -aes-256-cbc -base64 -in encryptedMsg.txt -out original.txt -pass pass:sessionPsw
 
 #signature of above content
 openssl dgst -sha1 -sign RSA.pem -out encryptedFile.txt.sha1 encryptedFile.txt

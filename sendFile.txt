@@ -1,8 +1,8 @@
 -----BEGIN CSC474 MESSAGE-----
 encSess.enc
 
-U2FsdGVkX1+nKP19PcR2SBmBaV3lxQn5ovN4lv6t+2pRWt/GiV5Zkkezk0v71xL3
-K2pfW9ePWRXIUW+J8yR1/Q==
+U2FsdGVkX1805ToEVFm1QuZPDIlzssqaWipkORw2SOKSJm5rOsyGanMyj/yd4+fj
+V4ib8dhGMKWL9rRgQqnxlg==
 
 encryptedFile.txt.sha1
 -----END CSC474 MESSAGE-----
