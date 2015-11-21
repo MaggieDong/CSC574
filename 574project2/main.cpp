@@ -6,9 +6,6 @@
 //  Copyright (c) 2015 mdong3. All rights reserved.
 //
 
-//#include <openssl/conf.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
 #include <openssl/rand.h>
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <stdlib.h>     /* srand, rand */
@@ -24,8 +21,8 @@ int main(int arc, char *argv[])
 {
     cout << "Hi, enter 0 to send a secure mail, or enter 1 to reveive a secure mail." << endl;
     int choice;
-//    cin >> choice;
-    choice = 1;
+    cin >> choice;
+//    choice = 1;
     switch (choice) {
         case 0:
             sendEmail();
@@ -101,10 +98,11 @@ void sendEmail(){
 void receiveEmail() {
     string emailName;
     FILE* receiveFile;
-    cout << "please enter the email name you want to receive: ";
-    cin >> emailName;
+//    cout << "please enter the email name you want to receive: ";
+//    cin >> emailName;
+    emailName = "sendFile";
     string mailName = emailName + ".txt";
-    cout << "email name is: " << mailName << endl;
+//    cout << "email name is: " << mailName << endl;
     receiveFile = fopen(mailName.c_str(), "r");
     while (receiveFile == NULL) {
         cout << "Sorry, there is no email named " << mailName << endl;
@@ -119,26 +117,26 @@ void receiveEmail() {
     ssize_t read;
     int enterCount = 0;
     string test = "\n";
-    cout << "size: " << sizeof(test) << endl;
+//    cout << "size: " << sizeof(test) << endl;
     bool errorDec = true;
     while ((read = getline(&line, &len, receiveFile)) != -1) {
 //        printf("Retrieved line of length %zu :\n", read);
-        printf("%s", line);
+//        printf("%s", line);
         if (line[0] == '\n') {
             enterCount ++;
-            cout << "enter number: " << enterCount << endl;
+//            cout << "enter number: " << enterCount << endl;
         }
         if (enterCount == 2) {
             errorDec = false;
             read = getline(&line, &len, receiveFile);
             string signedFN(line); //signed file name
 //            char* signedFNC = signedFN.c_str();
-            cout << "signed file name is: " << signedFN << endl;
+//            cout << "signed file name is: " << signedFN << endl;
 //            unsigned int size = (unsigned)strlen(signedFNC);
             unsigned long nameLen = signedFN.length();
-            cout << "length is: " << nameLen << endl;
+//            cout << "length is: " << nameLen << endl;
             string unsignedFN = signedFN.substr(0, nameLen - 6);
-            cout << "unsigned file name: " << unsignedFN << endl;
+//            cout << "unsigned file name: " << unsignedFN << endl;
             string verifyShell = "./verifyScript.sh ";
             verifyShell += unsignedFN;
 //            verifyShell += signedFN;
@@ -147,7 +145,7 @@ void receiveEmail() {
 //            verifyShell += unsignedFN;
 //            cout << "mark! " << verifyShell << endl;
             verifyRes = system(verifyShell.c_str());
-            cout << "verify or not? " << verifyRes << endl;
+//            cout << "verify or not? " << verifyRes << endl;
             break;
         }
     }
@@ -176,11 +174,11 @@ void receiveEmail() {
         sessionKey = fopen(sessionKeyFN.c_str(), "w");
         receiveFile = fopen(mailName.c_str(), "r");
         while ((read = getline(&line, &len, receiveFile)) != -1) {
-            printf("Retrieved line of length %zu :\n", read);
-            printf("%s", line);
+//            printf("Retrieved line of length %zu :\n", read);
+//            printf("%s", line);
             lineCount ++;
             if (line[0] != '\n' && lineCount > 1) {
-                cout << "seccess!" << endl;
+//                cout << "seccess!" << endl;
                 fprintf(sessionKey, line);
             }
             if (line[0] == '\n') {
@@ -212,10 +210,10 @@ void receiveEmail() {
         message = fopen(messageFN.c_str(), "w");
         receiveFile = fopen(mailName.c_str(), "r");
         while ((read = getline(&line, &len, receiveFile)) != -1) {
-            printf("Retrieved line of length %zu :\n", read);
-            printf("%s", line);
+//            printf("Retrieved line of length %zu :\n", read);
+//            printf("%s", line);
             if (line[0] != '\n' && newLineCount == 1) {
-                cout << "seccess!" << endl;
+//                cout << "seccess!" << endl;
                 fprintf(message, line);
             }
             if (line[0] == '\n') {
@@ -233,16 +231,3 @@ void receiveEmail() {
     }
     ///////////////////////////////////////////////////
 }
-
-////////////////////////////////////////////////
-//    unsigned char key[16];//, iv[16];
-//
-//    if (!RAND_bytes(key, sizeof key)) {
-//        /* OpenSSL reports a failure, act accordingly */
-//        cout << "fail" << endl;
-//    }
-//    cout << "code: " << endl;
-//    for (int i = 0; i < 16; i++) {
-//        cout << key[i] << endl;
-//    }
-////////////////////////////////////////////////
