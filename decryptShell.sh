@@ -8,7 +8,7 @@ openssl rsautl -inkey RSA.pem -decrypt -in encSess.enc -out sessionkey.txt
 # rm sessionFile.txt
 
 #message encrypted under session pwd above
-openssl enc -d -aes-256-cbc -base64 -in sendFileMsg.txt -out decryptedMsg.txt -pass pass:VxEqylAzs3fzrkUpNeTw2OVXv30duOzF
+openssl enc -d -aes-256-cbc -base64 -in sendFileMsg.txt -out decryptedMsg.txt -pass file:sessionkey.txt
 #file:sessionkey.txt
 
 # cat encryptedMsg.txt >> encryptedFile.txt

@@ -40,9 +40,9 @@ int main(int arc, char *argv[])
 
 void sendEmail(){
     FILE* sendFile;
-    cout << "please input the email name: ";
-    string emailName;
-    cin >> emailName;
+//    cout << "please input the email name: ";
+    string emailName = "sendFile";
+//    cin >> emailName;
     sendFile = fopen(emailName.c_str(), "w");
     
     ////////////////Generate 32 characters string as the session key/////////////////
@@ -91,8 +91,7 @@ void sendEmail(){
     fclose(messageFile);
     ////////////////////////////////////////////////////////////
     /////////////////////encrypt the message////////////////////
-    string encryptShell = "./encryptMes.sh ";
-    encryptShell += sessionPsw;
+    string encryptShell = "./encryptMes.sh";
     cout << "start to encrypt message, please enter your private psw to sign the mail!" << endl;
     system(encryptShell.c_str());
     cout << "done!" << endl;
