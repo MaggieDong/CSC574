@@ -42,7 +42,8 @@ void sendEmail(){
     FILE* sendFile;
     cout << "please input the email name: ";
     string emailName;
-    sendFile = fopen(emailName.c_str(), "w+");
+    cin >> emailName;
+    sendFile = fopen(emailName.c_str(), "w");
     
     ////////////////Generate 32 characters string as the session key/////////////////
     int secIndx;
@@ -68,8 +69,9 @@ void sendEmail(){
             sessionPsw += c;
         }
     }
+    cout << "session key is: " << sessionPsw << endl;
     FILE *sessionFile;
-    sessionFile = fopen("sessionFile.txt", "w+");
+    sessionFile = fopen("sessionFile.txt", "w");
     fprintf(sessionFile, sessionPsw.c_str());
     fclose(sessionFile);
     /////////////////////////////////////////////////////////////
@@ -101,15 +103,17 @@ void receiveEmail() {
     string emailName;
     FILE* receiveFile;
     cout << "please enter the email name you want to receive: ";
-//    cin >> emailName;
-    emailName = "sendFile.txt";
-    receiveFile = fopen(emailName.c_str(), "r");
+    cin >> emailName;
+    string mailName = emailName + ".txt";
+    cout << "email name is: " << mailName << endl;
+    receiveFile = fopen(mailName.c_str(), "r");
     while (receiveFile == NULL) {
-        cout << "Sorry, there is no email named " << emailName << endl;
+        cout << "Sorry, there is no email named " << mailName << endl;
         cout << "please enter the email name you want to receive: ";
-        cin >> emailName;
-        receiveFile = fopen(emailName.c_str(), "r");
+        cin >> mailName;
+        receiveFile = fopen(mailName.c_str(), "r");
     }
+    int verifyRes = -1;
     //////Verify the signature on received message/////
     char * line = NULL;
     size_t len = 0;
@@ -143,19 +147,63 @@ void receiveEmail() {
 ////            verifyShell += " ";
 //            verifyShell += unsignedFN;
 //            cout << "mark! " << verifyShell << endl;
-            system(verifyShell.c_str());
+            verifyRes = system(verifyShell.c_str());
+            cout << "verify or not? " << verifyRes << endl;
             break;
         }
     }
+    fclose(receiveFile);
+    if (line)
+        free(line);
+//    exit(EXIT_SUCCESS);
+    
     if (errorDec) {
         cout << "the format of received file is wrong!" << endl;
         return;
     }
+    ///////////////////////////////////////////////////
     
-    fclose(receiveFile);
-    if (line)
-        free(line);
-    exit(EXIT_SUCCESS);
+    ////////decrypt session key with private key///////
+    if (verifyRes == 0) { //if Verification OK
+        char * line = NULL;
+        size_t len = 0;
+        ssize_t read;
+        int lineCount = 0;
+//        string test = "\n";
+//        cout << "size: " << sizeof(test) << endl;
+//        bool errorDec = true;
+        FILE * sessionKey;
+        string sessionKeyFN = emailName + "SesK.txt";
+        sessionKey = fopen(sessionKeyFN.c_str(), "w");
+        receiveFile = fopen(mailName.c_str(), "r");
+        while ((read = getline(&line, &len, receiveFile)) != -1) {
+            printf("Retrieved line of length %zu :\n", read);
+            printf("%s", line);
+            lineCount ++;
+            if (line[0] != '\n' && lineCount > 1) {
+                cout << "seccess!" << endl;
+                fprintf(sessionKey, line);
+            }
+            if (line[0] == '\n') {
+                break;
+            }
+        }
+        fclose(receiveFile);
+        fclose(sessionKey);
+        if (line)
+            free(line);
+        string privateKey;
+        cout << "please enter your private key to decrypt message: ";
+//        cin >> privateKey;
+        privateKey = "RSA09120705ym";
+        string decryptShell = "./decryptShell.sh ";
+        decryptShell += privateKey;
+        system(decryptShell.c_str());
+    }
+    ///////////////////////////////////////////////////
+    
+    //////////decrypt message using session key////////
+    
     ///////////////////////////////////////////////////
 }
 
