@@ -13,4 +13,4 @@ rm sessionkey.txt
 rm sendFileMsg.txt
 
 #remove the email after reading
-rm sendFile.txt
+# rm sendFile.txt
