@@ -19,6 +19,11 @@ void receiveEmail();
 
 int main(int arc, char *argv[])
 {
+    string databaseN = "database.txt";
+    FILE* databaseF;
+    databaseF = fopen(databaseN.c_str(), "a+");
+    fclose(databaseF);
+    
     cout << "Hi, enter 0 to send a secure mail, or enter 1 to reveive a secure mail." << endl;
     int choice;
     cin >> choice;
@@ -36,11 +41,32 @@ int main(int arc, char *argv[])
 }
 
 void sendEmail(){
+//    FILE* sendFile;
+////    cout << "please input the email name: ";
+//    string emailName = "sendFile.txt";
+////    cin >> emailName;
+//    sendFile = fopen(emailName.c_str(), "w");
+    cout << "pleas enter your email ID: " ;
+    string sender, receiver;
+    cin >> sender; //sender's ID
+    cout << "please enter the destination email ID: ";
+    cin >> receiver; //receiver's ID
+    cout << endl;
+    
     FILE* sendFile;
-//    cout << "please input the email name: ";
-    string emailName = "sendFile";
-//    cin >> emailName;
+    //    cout << "please input the email name: ";
+    string emailName = "sendFile.txt";
+    //    cin >> emailName;
     sendFile = fopen(emailName.c_str(), "w");
+
+    fprintf(sendFile, "from: %s, to: %s\n", sender.c_str(), receiver.c_str());
+fclose(sendFile);
+    
+    //////////////verify receiver's cert//////////////////
+    string dbShell = "./databaseUpd.sh ";
+    dbShell += receiver;
+    system(dbShell.c_str());
+    //////////////////////////////////////////////////////
     
     ////////////////Generate 32 characters string as the session key/////////////////
     int secIndx;
@@ -87,36 +113,57 @@ void sendEmail(){
     }
     fclose(messageFile);
     ////////////////////////////////////////////////////////////
+    
     /////////////////////encrypt the message////////////////////
     string encryptShell = "./encryptMes.sh";
     cout << "start to encrypt message, please enter your private psw to sign the mail!" << endl;
     system(encryptShell.c_str());
     cout << "done!" << endl;
     ////////////////////////////////////////////////////////////
-    fclose(sendFile);
+    
 }
+
 void receiveEmail() {
     string emailName;
     FILE* receiveFile;
 //    cout << "please enter the email name you want to receive: ";
 //    cin >> emailName;
-    emailName = "sendFile";
-    string mailName = emailName + ".txt";
+//    emailName = "sendFile";
+    string mailName = "sendFile.txt";//emailName + ".txt";
 //    cout << "email name is: " << mailName << endl;
     receiveFile = fopen(mailName.c_str(), "r");
     while (receiveFile == NULL) {
-        cout << "Sorry, there is no email named " << mailName << endl;
-        cout << "please enter the email name you want to receive: ";
-        cin >> mailName;
-        receiveFile = fopen(mailName.c_str(), "r");
+        cout << "Sorry, there is no email to read!" << endl;
+//        cout << "Sorry, there is no email named " << mailName << endl;
+//        cout << "please enter the email name you want to receive: ";
+//        cin >> mailName;
+//        receiveFile = fopen(mailName.c_str(), "r");
     }
-    int verifyRes = -1;
-    //////Verify the signature on received message/////
+    //////obtain sender's email address from mail header//////
+    string sender = "";
     char * line = NULL;
     size_t len = 0;
     ssize_t read;
+    if ((read = getline(&line, &len, receiveFile)) != -1) {
+        for (int i = 6; i < strlen(line); i++) {
+            if (line[i] == ',') {
+                break;
+            }
+            sender += line[i];
+        }
+    }
+    cout << "test sender name: " << sender << endl;
+    //////////////////////////////////////////////////////////
+    
+    
+    //////Verify the signature on received message/////
+    receiveFile = fopen(mailName.c_str(), "r");
+    int verifyRes = -1;
+
+    line = NULL;
+    len = 0;
     int enterCount = 0;
-    string test = "\n";
+//    string test = "\n";
 //    cout << "size: " << sizeof(test) << endl;
     bool errorDec = true;
     while ((read = getline(&line, &len, receiveFile)) != -1) {
@@ -170,14 +217,14 @@ void receiveEmail() {
 //        cout << "size: " << sizeof(test) << endl;
 //        bool errorDec = true;
         FILE * sessionKey;
-        string sessionKeyFN = emailName + "SesK.txt";
+        string sessionKeyFN = "sendFileSesK.txt";
         sessionKey = fopen(sessionKeyFN.c_str(), "w");
         receiveFile = fopen(mailName.c_str(), "r");
         while ((read = getline(&line, &len, receiveFile)) != -1) {
 //            printf("Retrieved line of length %zu :\n", read);
 //            printf("%s", line);
             lineCount ++;
-            if (line[0] != '\n' && lineCount > 1) {
+            if (line[0] != '\n' && lineCount > 2) {
 //                cout << "seccess!" << endl;
                 fprintf(sessionKey, line);
             }
@@ -206,7 +253,7 @@ void receiveEmail() {
         ssize_t read;
         int newLineCount = 0;
         FILE * message;
-        string messageFN = emailName + "Msg.txt";
+        string messageFN = "sendFileMsg.txt";
         message = fopen(messageFN.c_str(), "w");
         receiveFile = fopen(mailName.c_str(), "r");
         while ((read = getline(&line, &len, receiveFile)) != -1) {
