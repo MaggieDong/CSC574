@@ -155,7 +155,29 @@ void receiveEmail() {
     cout << "test sender name: " << sender << endl;
     //////////////////////////////////////////////////////////
     
-    
+    ///////get the target's public key//////////
+    FILE * certFile;
+    FILE * pubCert;
+    certFile = fopen("1009.pem", "r");
+    char * LINE = NULL;
+    size_t length = 0;
+    ssize_t readLine;
+    pubCert = fopen("pubCert.pem","w");
+    while ((readLine = getline(&LINE, &length, certFile)) != -1) {
+        int begin = strcmp(LINE,"-----BEGIN CERTIFICATE-----\n");
+        
+        if(begin == 0){
+            while (strcmp(LINE,"-----END CERTIFICATE-----\n")!=0) {
+                fputs (LINE,pubCert);
+                getline(&LINE, &length, certFile);
+            }
+            fputs (LINE,pubCert);
+            fclose (pubCert);
+            break;
+        }
+    }
+    fclose(certFile);
+
     //////Verify the signature on received message/////
     receiveFile = fopen(mailName.c_str(), "r");
     int verifyRes = -1;
