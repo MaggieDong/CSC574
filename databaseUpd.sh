@@ -5,10 +5,11 @@ if grep -q $receiver "$database"; then #extract the pem file
 	echo "exist in database!"
 	line=$(grep -i $receiver database.txt)
 	IFS=',' read -r -a recv <<< "$line"
-	echo ${recv[0]}
-	echo ${recv[1]}
+	# echo ${recv[0]}
+	# echo ${recv[1]}
 	fileN=${recv[1]}
-	openssl verify -verbose -CAfile $fileN root-ca.crt #> verifyCARes.txt
+	echo $fileN > pemFileN.txt
+	openssl verify -verbose -CAfile $fileN root-ca.crt > verifyCARes.txt
 	
 else #get the pem file from course webpage
 	echo "not found in database!"
@@ -23,8 +24,10 @@ else #get the pem file from course webpage
 		echo $fileN
 		curl -o $fileN $webLink #download the pem file to the local directory
 		echo $receiver","$fileN >> database.txt 
-		openssl verify -verbose -CAfile $fileN root-ca.crt #> verifyCARes.txt
+		echo $fileN > pemFileN.txt
+		openssl verify -verbose -CAfile $fileN root-ca.crt > verifyCARes.txt
 	else
 		echo "not found receiver ID in CertificateRepo.txt"
+		exit 1
 	fi
 fi

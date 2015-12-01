@@ -1,0 +1,3 @@
+root-ca.crt: /C=US/ST=NC/L=Raleigh/O=NCSU/OU=CSC/CN=574/emailAddress=harfoush@cs.ncsu.edu
+error 18 at 0 depth lookup:self signed certificate
+OK

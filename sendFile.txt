@@ -1,1 +1,9 @@
-from: spshetty, to: mdong3
+from: mdong3, to: mdong3
+-----BEGIN CSC474 MESSAGE-----
+encSess.enc
+
+U2FsdGVkX1/A6LPZOkc4Jh8eFGAMP8Mwslb21msH8CK+Ysa9i/G5iGhQFtWmw1LR
+sVYST0y9E0krrcaWbb8++w==
+
+encryptedFile.txt.sha1
+-----END CSC474 MESSAGE-----

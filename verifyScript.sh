@@ -2,8 +2,8 @@
 unsignedFN=$1
 signedFN=$unsignedFN".sha1"
 # unsignedFN=$2
-echo $signedFN
-echo $unsignedFN
+# echo $signedFN
+# echo $unsignedFN
 
 openssl x509 -in pubCert.pem -pubkey -noout > public.pem
 openssl dgst -sha1 -verify public.pem -signature $signedFN $unsignedFN
