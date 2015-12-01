@@ -60,19 +60,57 @@ void sendEmail(){
     sendFile = fopen(emailName.c_str(), "w");
 
     fprintf(sendFile, "from: %s, to: %s\n", sender.c_str(), receiver.c_str());
-fclose(sendFile);
+    fclose(sendFile);
     
     //////////////verify receiver's cert//////////////////
     string dbShell = "./databaseUpd.sh ";
+    
     dbShell += receiver;
     int CApass = -1;
     CApass = system(dbShell.c_str());
     if (CApass == 0) {
-        cout << "Verified Ok!" << endl;
+        cout << "Verified receiver's certificate!" << endl;
     }
     //////////////////////////////////////////////////////
     
     if (CApass == 0) {
+        ///////////get the receiver's pem file name////////////////
+        FILE* pemFileN = fopen("pemFileN.txt", "r");
+        char *pemFNline = NULL;
+        size_t len = 0;
+        ssize_t fileNline;
+        fileNline = getline(&pemFNline, &len, pemFileN);
+        fclose(pemFileN);
+        string PemFileName(pemFNline);
+        PemFileName = PemFileName.substr(0, 8);
+        ////////////////////////////////////////////////
+        
+        ///////get the receiver's public key//////////
+        FILE * certFile;
+        FILE * pubCert;
+        certFile = fopen(PemFileName.c_str(), "r");
+        char * LINE = NULL;
+        size_t length = 0;
+        ssize_t readLine;
+        pubCert = fopen("pubCert.pem","w");
+        while ((readLine = getline(&LINE, &length, certFile)) != -1) {
+            int begin = strcmp(LINE,"-----BEGIN CERTIFICATE-----\n");
+            
+            if(begin == 0){
+                while (strcmp(LINE,"-----END CERTIFICATE-----\n")!=0) {
+                    fputs (LINE,pubCert);
+                    getline(&LINE, &length, certFile);
+                }
+                fputs (LINE,pubCert);
+                fclose (pubCert);
+                break;
+            }
+        }
+        fclose(certFile);
+        //    string senderPubShell = "./senderPub.sh";
+        //    system(senderPubShell.c_str());
+        ///////////////////////////////////////////////
+        
         ////////////////Generate 32 characters string as the session key/////////////////
         int secIndx;
         string sessionPsw;
@@ -120,7 +158,11 @@ fclose(sendFile);
         ////////////////////////////////////////////////////////////
         
         /////////////////////encrypt the message////////////////////
-        string encryptShell = "./encryptMes.sh";
+        cout << "please enter the file name of your private key file(X.pem): " << endl;
+        string privKeyFile;
+        cin >> privKeyFile;
+        string encryptShell = "./encryptMes.sh ";
+        encryptShell += privKeyFile;
         cout << "start to encrypt message, please enter your private psw to sign the mail!" << endl;
         system(encryptShell.c_str());
         cout << "send!" << endl;
@@ -160,13 +202,13 @@ void receiveEmail() {
 //    cout << "test sender name: " << sender << endl;
     //////////////////////////////////////////////////////////
     
-    //////////////verify receiver's cert//////////////////
+    //////////////verify sender's cert//////////////////
     string dbShell = "./databaseUpd.sh ";
     dbShell += sender;
     int CApass = -1;
     CApass = system(dbShell.c_str());
     if (CApass == 0) {
-        cout << "Verified Ok!" << endl;
+        cout << "Verified sender's certificate!" << endl;
     }
     //////////////////////////////////////////////////////
     
@@ -210,7 +252,8 @@ void receiveEmail() {
             }
         }
         fclose(certFile);
-
+        ///////////////////////////////////////////////
+        
         //////Verify the signature on received message/////
         receiveFile = fopen(mailName.c_str(), "r");
         int verifyRes = -1;
@@ -328,7 +371,11 @@ void receiveEmail() {
             fclose(message);
             if (line)
                 free(line);
-            string decryptShell = "./decryptShell.sh";
+            cout << "please enter the file name of your private key file(X.pem): " << endl;
+            string privKeyFile;
+            cin >> privKeyFile;
+            string decryptShell = "./decryptShell.sh ";
+            decryptShell += privKeyFile;
             system(decryptShell.c_str());
         }
         ///////////////////////////////////////////////////

@@ -1,9 +1,8 @@
-from: mdong3, to: mdong3
+from: kaweston, to: mdong3
 -----BEGIN CSC474 MESSAGE-----
 encSess.enc
 
-U2FsdGVkX1/A6LPZOkc4Jh8eFGAMP8Mwslb21msH8CK+Ysa9i/G5iGhQFtWmw1LR
-sVYST0y9E0krrcaWbb8++w==
+U2FsdGVkX18cQXbmFF2EkHCAO2E8VOq2LynWSLbI74N+9Kusrox5+dLQa44WzSUJ
 
 encryptedFile.txt.sha1
 -----END CSC474 MESSAGE-----
