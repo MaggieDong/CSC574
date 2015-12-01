@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 mdong3. All rights reserved.
 //
 
-#include <openssl/rand.h>
+// #include <openssl/rand.h>
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
