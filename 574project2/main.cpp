@@ -7,7 +7,7 @@
 //
 
 
-#include <openssl/rand.h>
+//#include <openssl/rand.h>
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
@@ -62,7 +62,7 @@ void sendEmail(){
     //    cin >> emailName;
     sendFile = fopen(emailName.c_str(), "w");
 
-    fprintf(sendFile, "from: %s, to: %s\n", sender.c_str(), receiver.c_str());
+    fprintf(sendFile, "from: %s,to: %s\n", sender.c_str(), receiver.c_str());
     fclose(sendFile);
     
     //////////////verify receiver's cert//////////////////
@@ -164,8 +164,8 @@ void sendEmail(){
         /////////////////////encrypt the message////////////////////
         cout << "please enter the file name of your private key file(X.pem): " << endl;
         string privKeyFile;
-//        cin >> privKeyFile;
-        privKeyFile = "RSA.pem";
+        cin >> privKeyFile;
+//        privKeyFile = "RSA.pem";
         string encryptShell = "./encryptMes.sh ";
         encryptShell += privKeyFile;
         cout << "start to encrypt message, please enter your private psw to sign the mail!" << endl;
@@ -260,32 +260,41 @@ void receiveEmail() {
         ///////////////////////////////////////////////
         
         ////////////Verify the signature on received message///////////////
-        ////////////////extract the unsigned file////////////
+        ////////////////extract the unsigned file and sessionkey file////////////
         receiveFile = fopen(mailName.c_str(), "r");
         line = NULL;
         len = 0;
         read = getline(&line, &len, receiveFile);
         read = getline(&line, &len, receiveFile);
         FILE* unsignedFile = fopen("encryptedFile1.txt", "w");
+        FILE * sessionKey = fopen("encSess1.enc", "w");
         int countN = 0;
         int c;
-        while (countN <= 128) {
+        while (countN < 128) {
             c = fgetc(receiveFile);
             fprintf(unsignedFile, "%c", c);
+            fprintf(sessionKey, "%c", c);
             countN ++;
         }
         read = getline(&line, &len, receiveFile);
-//        cout << "line is: " << line << "end." << endl;
         fprintf (unsignedFile, line);
+        read = getline(&line, &len, receiveFile);
+        fprintf (unsignedFile, line);
+//        cout << "line is: " << line << "end." << endl;
         read = getline(&line, &len, receiveFile);
 //        cout << "line is2: " << line << "end." << endl;
 //        read = getline(&line, &len, receiveFile);
 //        cout << "line is3: " << line << endl;
+        FILE * message = fopen("sendFileMsg.txt", "w");
         while (line[0] != '\n') {
             fprintf(unsignedFile, line);
+            fprintf(message, line);
 //            cout << "get message!" << endl;
             read = getline(&line, &len, receiveFile);
+            
         }
+        fclose(message);
+        fclose(sessionKey);
         fclose(unsignedFile);
         
         //////////////extract the sha1 signed file///////////
@@ -302,6 +311,19 @@ void receiveEmail() {
         int verifyRes = -1;
         verifyRes = system(verifyShell.c_str());
         /////////////////////////////////////////////////////////////////////
+        
+        //////////decrypt message using session key////////
+        if (verifyRes == 0) { //if Verification OK
+            cout << "please enter the file name of your private key file(X.pem): " << endl;
+            string privKeyFile;
+            cin >> privKeyFile;
+            string decryptShell = "./decryptShell.sh ";
+            decryptShell += privKeyFile;
+            system(decryptShell.c_str());
+        }
+        ///////////////////////////////////////////////////
+    }
+}
 
 //        //////////////extract the sha1 signed file///////////
 //        receiveFile = fopen(mailName.c_str(), "r");
@@ -348,86 +370,48 @@ void receiveEmail() {
 //        if (line)
 //            free(line);
 //    //    exit(EXIT_SUCCESS);
-//        
+//
 //        if (errorDec) {
 //            cout << "the format of received file is wrong!" << endl;
 //            return;
 //        }
 //        ///////////////////////////////////////////////////
-        
-        ////////decrypt session key with private key///////
-        if (verifyRes == 0) { //if Verification OK
-            char * line = NULL;
-            size_t len = 0;
-            ssize_t read;
-            int lineCount = 0;
-    //        string test = "\n";
-    //        cout << "size: " << sizeof(test) << endl;
-    //        bool errorDec = true;
-            FILE * sessionKey;
-            string sessionKeyFN = "sendFileSesK.txt";
-            sessionKey = fopen(sessionKeyFN.c_str(), "w");
-            receiveFile = fopen(mailName.c_str(), "r");
-            while ((read = getline(&line, &len, receiveFile)) != -1) {
-    //            printf("Retrieved line of length %zu :\n", read);
-    //            printf("%s", line);
-                lineCount ++;
-                if (line[0] != '\n' && lineCount > 2) {
-    //                cout << "seccess!" << endl;
-                    fprintf(sessionKey, line);
-                }
-                if (line[0] == '\n') {
-                    break;
-                }
-            }
-            fclose(receiveFile);
-            fclose(sessionKey);
-            if (line)
-                free(line);
-    //        string privateKey;
-    //        cout << "please enter your private key to decrypt message: ";
-    ////        cin >> privateKey;
-    //        privateKey = "RSA09120705ym";
-    //        string decryptShell = "./decryptShell.sh ";
-    //        decryptShell += privateKey;
-    //        system(decryptShell.c_str());
-        }
-        ///////////////////////////////////////////////////
-        
-        //////////decrypt message using session key////////
-        if (verifyRes == 0) { //if Verification OK
-            char * line = NULL;
-            size_t len = 0;
-            ssize_t read;
-            int newLineCount = 0;
-            FILE * message;
-            string messageFN = "sendFileMsg.txt";
-            message = fopen(messageFN.c_str(), "w");
-            receiveFile = fopen(mailName.c_str(), "r");
-            while ((read = getline(&line, &len, receiveFile)) != -1) {
-    //            printf("Retrieved line of length %zu :\n", read);
-    //            printf("%s", line);
-                if (line[0] != '\n' && newLineCount == 1) {
-    //                cout << "seccess!" << endl;
-                    fprintf(message, line);
-                }
-                if (line[0] == '\n') {
-                    newLineCount ++;
-                    if (newLineCount == 2)
-                        break;
-                }
-            }
-            fclose(receiveFile);
-            fclose(message);
-            if (line)
-                free(line);
-            cout << "please enter the file name of your private key file(X.pem): " << endl;
-            string privKeyFile;
-            cin >> privKeyFile;
-            string decryptShell = "./decryptShell.sh ";
-            decryptShell += privKeyFile;
-            system(decryptShell.c_str());
-        }
-        ///////////////////////////////////////////////////
-    }
-}
+
+//        ////////decrypt session key with private key///////
+//        if (verifyRes == 0) { //if Verification OK
+//            char * line = NULL;
+//            size_t len = 0;
+//            ssize_t read;
+//            int lineCount = 0;
+//    //        string test = "\n";
+//    //        cout << "size: " << sizeof(test) << endl;
+//    //        bool errorDec = true;
+//            FILE * sessionKey;
+//            string sessionKeyFN = "encSess.enc";
+//            sessionKey = fopen(sessionKeyFN.c_str(), "w");
+//            receiveFile = fopen(mailName.c_str(), "r");
+//            while ((read = getline(&line, &len, receiveFile)) != -1) {
+//    //            printf("Retrieved line of length %zu :\n", read);
+//    //            printf("%s", line);
+//                lineCount ++;
+//                if (line[0] != '\n' && lineCount > 2) {
+//    //                cout << "seccess!" << endl;
+//                    fprintf(sessionKey, line);
+//                }
+//                if (line[0] == '\n') {
+//                    break;
+//                }
+//            }
+//            fclose(receiveFile);
+//            fclose(sessionKey);
+//            if (line)
+//                free(line);
+//    //        string privateKey;
+//    //        cout << "please enter your private key to decrypt message: ";
+//    ////        cin >> privateKey;
+//    //        privateKey = "RSA09120705ym";
+//    //        string decryptShell = "./decryptShell.sh ";
+//    //        decryptShell += privateKey;
+//    //        system(decryptShell.c_str());
+//        }
+//        ///////////////////////////////////////////////////

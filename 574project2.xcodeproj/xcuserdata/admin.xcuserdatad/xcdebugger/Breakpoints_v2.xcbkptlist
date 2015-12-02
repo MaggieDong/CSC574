@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "574project2/main.cpp"
-            timestampString = "470774200.686832"
+            timestampString = "470781306.471195"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "68"
-            endingLineNumber = "68"
+            startingLineNumber = "65"
+            endingLineNumber = "65"
             landmarkName = "sendEmail()"
             landmarkType = "7">
          </BreakpointContent>

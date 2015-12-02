@@ -31,8 +31,11 @@ cat encryptedFile.txt.sha1 >> sendFile.txt
 echo >> sendFile.txt
 echo "-----END CSC574 MESSAGE-----" >> sendFile.txt
 
-# rm message.txt
-# rm encryptedMsg.txt
-# rm sessionFile.txt
+rm encSess.enc
+rm message.txt
+rm encryptedMsg.txt
+rm sessionFile.txt
+rm encryptedFile.txt
+rm encryptedFile.txt.sha1
 
 # openssl dgst -sha1 -verify public.pem -signature encryptedFile.txt.sha1 encryptedFile.txt
