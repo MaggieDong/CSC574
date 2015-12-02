@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 mdong3. All rights reserved.
 //
 
-#include <openssl/rand.h>
+//#include <openssl/rand.h>
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
@@ -48,6 +48,8 @@ void sendEmail(){
 //    sendFile = fopen(emailName.c_str(), "w");
     cout << "pleas enter your email ID: " ;
     string sender, receiver;
+//    sender = "mdong3";
+//    receiver = "mdong3";
     cin >> sender; //sender's ID
     cout << "please enter the destination email ID: ";
     cin >> receiver; //receiver's ID
@@ -147,6 +149,7 @@ void sendEmail(){
         FILE *messageFile;
         messageFile = fopen ("message.txt","w+");
         puts ("Enter text. Include a star ('*') in a sentence to exit:");
+        messageC = getchar();
         while(1) {
             messageC = getchar();
             //        putchar (messageC);
@@ -160,7 +163,8 @@ void sendEmail(){
         /////////////////////encrypt the message////////////////////
         cout << "please enter the file name of your private key file(X.pem): " << endl;
         string privKeyFile;
-        cin >> privKeyFile;
+//        cin >> privKeyFile;
+        privKeyFile = "RSA.pem";
         string encryptShell = "./encryptMes.sh ";
         encryptShell += privKeyFile;
         cout << "start to encrypt message, please enter your private psw to sign the mail!" << endl;
@@ -254,56 +258,101 @@ void receiveEmail() {
         fclose(certFile);
         ///////////////////////////////////////////////
         
-        //////Verify the signature on received message/////
+        ////////////Verify the signature on received message///////////////
+        ////////////////extract the unsigned file////////////
         receiveFile = fopen(mailName.c_str(), "r");
-        int verifyRes = -1;
-
         line = NULL;
         len = 0;
-        int enterCount = 0;
-    //    string test = "\n";
-    //    cout << "size: " << sizeof(test) << endl;
-        bool errorDec = true;
-        while ((read = getline(&line, &len, receiveFile)) != -1) {
-    //        printf("Retrieved line of length %zu :\n", read);
-    //        printf("%s", line);
-            if (line[0] == '\n') {
-                enterCount ++;
-    //            cout << "enter number: " << enterCount << endl;
-            }
-            if (enterCount == 2) {
-                errorDec = false;
-                read = getline(&line, &len, receiveFile);
-                string signedFN(line); //signed file name
-    //            char* signedFNC = signedFN.c_str();
-    //            cout << "signed file name is: " << signedFN << endl;
-    //            unsigned int size = (unsigned)strlen(signedFNC);
-                unsigned long nameLen = signedFN.length();
-    //            cout << "length is: " << nameLen << endl;
-                string unsignedFN = signedFN.substr(0, nameLen - 6);
-    //            cout << "unsigned file name: " << unsignedFN << endl;
-                string verifyShell = "./verifyScript.sh ";
-                verifyShell += unsignedFN;
-    //            verifyShell += signedFN;
-    //            cout << "mark! " << verifyShell << endl;
-    ////            verifyShell += " ";
-    //            verifyShell += unsignedFN;
-    //            cout << "mark! " << verifyShell << endl;
-                verifyRes = system(verifyShell.c_str());
-    //            cout << "verify or not? " << verifyRes << endl;
-                break;
-            }
+        read = getline(&line, &len, receiveFile);
+        read = getline(&line, &len, receiveFile);
+        FILE* unsignedFile = fopen("encryptedFile1.txt", "w");
+        int countN = 0;
+        int c;
+        while (countN <= 128) {
+            c = fgetc(receiveFile);
+            fprintf(unsignedFile, "%c", c);
+            countN ++;
         }
-        fclose(receiveFile);
-        if (line)
-            free(line);
-    //    exit(EXIT_SUCCESS);
+        read = getline(&line, &len, receiveFile);
+//        cout << "line is: " << line << "end." << endl;
+        fprintf (unsignedFile, line);
+        read = getline(&line, &len, receiveFile);
+//        cout << "line is2: " << line << "end." << endl;
+//        read = getline(&line, &len, receiveFile);
+//        cout << "line is3: " << line << endl;
+        while (line[0] != '\n') {
+            fprintf(unsignedFile, line);
+//            cout << "get message!" << endl;
+            read = getline(&line, &len, receiveFile);
+        }
+        fclose(unsignedFile);
         
-        if (errorDec) {
-            cout << "the format of received file is wrong!" << endl;
-            return;
+        //////////////extract the sha1 signed file///////////
+        countN = 0;
+        FILE* sha1File = fopen("encryptedFile1.txt.sha1", "w");
+        while (countN < 128) {
+            c = fgetc(receiveFile);
+            fprintf(sha1File, "%c", c);
+            countN ++;
         }
-        ///////////////////////////////////////////////////
+        fclose(sha1File);
+        fclose(receiveFile);
+        string verifyShell = "./verifyScript.sh";
+        int verifyRes = -1;
+        verifyRes = system(verifyShell.c_str());
+        /////////////////////////////////////////////////////////////////////
+
+//        //////////////extract the sha1 signed file///////////
+//        receiveFile = fopen(mailName.c_str(), "r");
+//        int verifyRes = -1;
+//
+//        line = NULL;
+//        len = 0;
+//        int enterCount = 0;
+//    //    string test = "\n";
+//    //    cout << "size: " << sizeof(test) << endl;
+//        bool errorDec = true;//detect the format of received file.
+//        while ((read = getline(&line, &len, receiveFile)) != -1) {
+//    //        printf("Retrieved line of length %zu :\n", read);
+//    //        printf("%s", line);
+//            if (line[0] == '\n') {
+//                enterCount ++;
+//    //            cout << "enter number: " << enterCount << endl;
+//            }
+//            if (enterCount == 2) {
+////                errorDec = false;
+////                read = getline(&line, &len, receiveFile);
+////                string signedFN(line); //signed file name
+////                unsigned long nameLen = signedFN.length();
+////                string unsignedFN = signedFN.substr(0, nameLen - 6);
+////                string verifyShell = "./verifyScript.sh ";
+////                verifyShell += unsignedFN;
+////                verifyRes = system(verifyShell.c_str());
+////                break;
+//                errorDec = false;
+//                countN = 0;
+//                FILE* sha1File = fopen("encryptedFile1.txt.sha1", "w");
+//                while (countN < 128) {
+//                    c = fgetc(receiveFile);
+//                    fprintf(sha1File, "%c", c);
+//                    countN ++;
+//                }
+//                fclose(sha1File);
+//                string verifyShell = "./verifyScript.sh";
+////                verifyRes = system(verifyShell.c_str());
+//                break;
+//            }
+//        }
+//        fclose(receiveFile);
+//        if (line)
+//            free(line);
+//    //    exit(EXIT_SUCCESS);
+//        
+//        if (errorDec) {
+//            cout << "the format of received file is wrong!" << endl;
+//            return;
+//        }
+//        ///////////////////////////////////////////////////
         
         ////////decrypt session key with private key///////
         if (verifyRes == 0) { //if Verification OK
