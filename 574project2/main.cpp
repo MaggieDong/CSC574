@@ -62,7 +62,7 @@ void sendEmail(){
     //    cin >> emailName;
     sendFile = fopen(emailName.c_str(), "w");
 
-    fprintf(sendFile, "from: %s,to: %s\n", sender.c_str(), receiver.c_str());
+    fprintf(sendFile, "from: %s@ncsu.edu,to: %s@ncsu.edu\n", sender.c_str(), receiver.c_str());
     fclose(sendFile);
     
     //////////////verify receiver's cert//////////////////
@@ -162,10 +162,10 @@ void sendEmail(){
         ////////////////////////////////////////////////////////////
         
         /////////////////////encrypt the message////////////////////
-        cout << "please enter the file name of your private key file(X.pem): " << endl;
+//        cout << "please enter the file name of your private key file(X.pem): " << endl;
         string privKeyFile;
-        cin >> privKeyFile;
-//        privKeyFile = "RSA.pem";
+//        cin >> privKeyFile;
+        privKeyFile = "RSA.pem";
         string encryptShell = "./encryptMes.sh ";
         encryptShell += privKeyFile;
         cout << "start to encrypt message, please enter your private psw to sign the mail!" << endl;
@@ -204,9 +204,14 @@ void receiveEmail() {
             sender += line[i];
         }
     }
+    ////////if it's email address////////
+    size_t length = sender.length();
+    sender = sender.substr(0, length - 9);
+    /////////////////////////////////////
 //    cout << "test sender name: " << sender << endl;
     //////////////////////////////////////////////////////////
     
+//    sender = "kaweston";
     //////////////verify sender's cert//////////////////
     string dbShell = "./databaseUpd.sh ";
     dbShell += sender;
@@ -276,10 +281,14 @@ void receiveEmail() {
             fprintf(sessionKey, "%c", c);
             countN ++;
         }
-        read = getline(&line, &len, receiveFile);
-        fprintf (unsignedFile, line);
-        read = getline(&line, &len, receiveFile);
-        fprintf (unsignedFile, line);
+        c = fgetc(receiveFile);
+        fprintf(unsignedFile, "%c", c);
+        c = fgetc(receiveFile);
+        fprintf(unsignedFile, "%c", c);
+//        read = getline(&line, &len, receiveFile);
+//        fprintf (unsignedFile, line);
+//        read = getline(&line, &len, receiveFile);
+//        fprintf (unsignedFile, line);
 //        cout << "line is: " << line << "end." << endl;
         read = getline(&line, &len, receiveFile);
 //        cout << "line is2: " << line << "end." << endl;
@@ -314,9 +323,10 @@ void receiveEmail() {
         
         //////////decrypt message using session key////////
         if (verifyRes == 0) { //if Verification OK
-            cout << "please enter the file name of your private key file(X.pem): " << endl;
+//            cout << "please enter the file name of your private key file(X.pem): " << endl;
             string privKeyFile;
-            cin >> privKeyFile;
+//            cin >> privKeyFile;
+            privKeyFile = "RSA.pem";
             string decryptShell = "./decryptShell.sh ";
             decryptShell += privKeyFile;
             system(decryptShell.c_str());
